@@ -5,25 +5,24 @@ import com.yin.erp.base.exceptions.MessageException;
 import com.yin.erp.user.user.dao.UserDao;
 import com.yin.erp.user.user.entity.bo.UserSessionBo;
 import com.yin.erp.user.user.entity.po.UserPo;
-import com.yin.erp.user.user.entity.vo.LoginUserVo;
+import com.yin.erp.user.user.entity.vo.in.LoginUserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 用户控制器
+ *
+ * @author yin
  */
 @RestController
-@RequestMapping(value = "user")
-//@ExceptionHandlerAnnotation
-public class MyController {
+@RequestMapping(value = "login")
+public class LoginController {
 
-    //    @Autowired
-//    private UserService userService;
     @Autowired
     private UserDao userDao;
 
@@ -34,8 +33,7 @@ public class MyController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "login", method = RequestMethod.POST, consumes = "application/json")
-//    @ExceptionHandlerAnnotation
+    @PostMapping(value = "login", consumes = "application/json")
     public BaseJson login(@Validated @RequestBody LoginUserVo loginUserVo, HttpSession session) throws Exception {
         UserPo user = userDao.findByAccount(loginUserVo.getUsername());
         if (user == null) {
@@ -47,8 +45,14 @@ public class MyController {
         loginUserVo.setPassword(null);
         loginUserVo.setName(user.getName());
         loginUserVo.setToken(session.getId());
-        session.setAttribute("user", new UserSessionBo(user.getId(), user.getAccount(), user.getName()));
-        return BaseJson.getSuccess(loginUserVo);
+        UserSessionBo bo = new UserSessionBo();
+        bo.setToken("admin");
+        bo.setName(user.getName());
+        List<String> roles = new ArrayList<>();
+        roles.add("admin");
+        bo.setRoles(roles);
+        session.setAttribute("user", bo);
+        return BaseJson.getSuccess("登录成功", bo);
     }
 
     /**
@@ -58,10 +62,10 @@ public class MyController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "info", method = RequestMethod.GET)
-//    @ExceptionHandlerAnnotation
+    @GetMapping(value = "info")
     public BaseJson info(HttpSession session) throws Exception {
-        return BaseJson.getSuccess("123");
+        UserSessionBo userBo = (UserSessionBo) session.getAttribute("user");
+        return BaseJson.getSuccess(userBo);
     }
 
     /**
@@ -72,7 +76,6 @@ public class MyController {
      * @throws Exception
      */
     @RequestMapping(value = "logout", method = RequestMethod.POST)
-//    @ExceptionHandlerAnnotation
     public BaseJson logout(HttpSession session) throws Exception {
         session.removeAttribute("user");
         return BaseJson.getSuccess();
@@ -87,12 +90,11 @@ public class MyController {
      * @throws Exception
      */
     @RequestMapping(value = "reset_password", method = RequestMethod.POST, consumes = "application/json")
-//    @ExceptionHandlerAnnotation
     public BaseJson resetPassword(HttpSession session, @RequestBody String password) throws Exception {
         UserSessionBo userBo = (UserSessionBo) session.getAttribute("user");
-        UserPo user = userDao.findById(userBo.getId()).get();
-        user.setPasswd(password);
-        userDao.save(user);
+//        UserPo user = userDao.findById(userBo.getId()).get();
+//        user.setPasswd(password);
+//        userDao.save(user);
         return BaseJson.getSuccess();
     }
 

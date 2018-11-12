@@ -23,7 +23,5 @@ public class UserPo extends BasePo{
     @Column(name="passwd")
     private String passwd;
 
-    @Column(name="deleted")
-    private boolean deleted;
 
 }

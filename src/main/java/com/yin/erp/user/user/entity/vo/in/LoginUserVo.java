@@ -1,4 +1,4 @@
-package com.yin.erp.user.user.entity.vo;
+package com.yin.erp.user.user.entity.vo.in;
 
 
 import lombok.Getter;

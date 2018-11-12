@@ -1,14 +1,15 @@
 package com.yin.erp.user.user.service;
 
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户服务层
+ *
+ * @author yin
  */
 @Service
-@Transactional(rollbackOn = Throwable.class)
+@Transactional(rollbackFor = Throwable.class)
 public class UserService {
 
     //login
